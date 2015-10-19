@@ -148,7 +148,7 @@ let XUnit2Defaults =
       Silent = false
       Wait = false }
 
-let internal buildXUnit2Args assemblies parameters =
+let buildXUnit2Args assemblies parameters =
     let formatTrait traitFlag (name, value) =
         sprintf @"%s ""%s=%s""" traitFlag name value
     let appendTraits traitsList traitFlag sb =
@@ -217,7 +217,7 @@ module internal ResultHandling =
 ///
 ///     Target "Test" (fun _ ->
 ///         !! (testDir @@ "xUnit.Test.*.dll")
-///           |> xUnit2 (fun p -> {p with HtmlOutputPath = (testDir @@ "xunit.html")})
+///         |> xUnit2 (fun p -> { p with HtmlOutputPath = Some (testDir @@ "xunit.html") })
 ///     )
 let xUnit2 setParams assemblies =
     let details = separated ", " assemblies

@@ -25,6 +25,10 @@ let inline combinePathsNoTrim path1 path2 = Path.Combine(path1, path2)
 let inline (@@) path1 path2 = combinePaths path1 path2
 let inline (</>) path1 path2 = combinePathsNoTrim path1 path2
 
+// Normalizes path for different OS
+let inline normalizePath (path : string) = 
+    path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar)
+
 /// Retrieves all environment variables from the given target
 let environVars target = 
     [ for e in Environment.GetEnvironmentVariables target -> 
@@ -123,6 +127,12 @@ let isLinux = int System.Environment.OSVersion.Platform |> fun p -> (p = 4) || (
 /// Todo: Detect mono on windows
 let isMono = isLinux || isUnix || isMacOS
 
+let monoPath =
+    if isMacOS && File.Exists "/Library/Frameworks/Mono.framework/Commands/mono" then
+        "/Library/Frameworks/Mono.framework/Commands/mono"
+    else
+        "mono"
+
 /// Arguments on the Mono executable
 let mutable monoArguments = ""
 
@@ -130,7 +140,7 @@ let mutable monoArguments = ""
 let platformInfoAction (psi : ProcessStartInfo) = 
     if isMono && psi.FileName.EndsWith ".exe" then 
         psi.Arguments <- monoArguments + " " + psi.FileName + " " + psi.Arguments
-        psi.FileName <- "mono"
+        psi.FileName <- monoPath
 
 /// The path of the current target platform
 let mutable TargetPlatformPrefix = 
